@@ -33,7 +33,8 @@ def run_client():
                 pass
                 # YOUR CODE HERE:
                 # decode the data coming from the socket and print it out to the console
-                
+                msg=sock.recv(1024).decode()
+                prinst(msg)
             else:
                 # The user entered a message
                 msg = sys.stdin.readline()

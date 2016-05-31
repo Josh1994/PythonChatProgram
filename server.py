@@ -50,6 +50,8 @@ def run_server():
                 # YOUR CODE HERE
                 # Extract the data from the socket and iterate over the socket_list
                 # to send the data to each of the connected clients.
+                message = sock.recv(1024).decode()
+                sock.send(message.encode())
 
 
      
