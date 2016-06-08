@@ -30,11 +30,11 @@ def run_client():
         for sock in ready_to_read:            
             # The server has sent a message
             if sock == client_socket:
-                pass
+                #pass
                 # YOUR CODE HERE:
                 # decode the data coming from the socket and print it out to the console
                 msg=sock.recv(1024).decode()
-                print(msg)
+                print (msg)     
             else:
                 # The user entered a message
                 msg = sys.stdin.readline()

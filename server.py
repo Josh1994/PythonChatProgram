@@ -23,6 +23,7 @@ def run_server():
 
     # Create a list to manage all of the sockets
     socket_list = []
+    nickname_dic = {'1': 'admin'}
     # Add the server socket to this list
     socket_list.append(server_socket)
 
@@ -31,7 +32,7 @@ def run_server():
     while True:
 
         # Monitor all of the sockets in socket_list until something happens
-        ready_to_read, ready_to_write, in_error = select.select(socket_list, [], [], 0)
+        ready_to_read, ready_to_write, in_error=select.select(socket_list, [], [], 0)
 
         # When something happens, check each of the ready_to_read sockets
         for sock in ready_to_read:
@@ -46,46 +47,42 @@ def run_server():
 
             # A message from a client has been recieved
             else:
-                
+                #pass
                 # YOUR CODE HERE
                 # Extract the data from the socket and iterate over the socket_list
                 # to send the data to each of the connected clients.
                 message = sock.recv(1024).decode()
-                nickname_dic = {}
-                #Loop through each socket and send the message besides the user's and the server's
-                for send_sock in socket_list:
-                    if send_sock == sock:
-                        pass
-                    elif send_sock == server_sock:
-                        pass
+                if '/NICK' in message:
+                    command = message.split(" ")[0] #extracts the /NICK command
+                    nickname = message.split(" ")[1] #extracts the nickname / second parameter
+                    if nickname in nickname_dic.values():
+                        message='Pick a new nickname'
+                        sock.send(message.encode().strip())
                     else:
-                        if '/NICK' in message:
-                            #Split the message on a space and get the parameters
-                            command = message.split(" ")[0] #extracts the /NICK command
-                            nickname = message.split(" ")[1] #extracts the nickname / second parameter
-                            #Check if existing nickname already exist
-                            for nick in nickname_dic.values():
-                                if nick == nickname:
-                                    print('Pick a new nickname')
-                                else:
-                                    nickname_dic[sock.getpeername()[1]] = nickname #Puts to dic the portnumber/key and nickname/value
-                                    print('Nickname has been created')
-                        elif '/WHO' in message:
-                            names=''
-                            for socket,nickname in nickname_dic.items():
-                                names=names+nickname+'\n'
-                                sock.send(names.encode()) 
-                        elif: '/MSG' in message:
-                            command = message.split(" ")[0] #extracts the /MSG command
-                            nickname = message.split(" ")[1] #extracts the nickname / second parameter
-                            text = message.split(" ")[2] #extracts the text / third parameter
-                            socket = list(nickname_dic.keys())[list(nickname_dic.values()).index(nickname)] #gets the key in the dictionary using its value
-                            if nickname in nickname_dic.values():
-                                sock.sendto( text.encode(),('127.0.0.1',socket) )
-                            else:
-                                print('User does not exist')
-                        else:    
-                        sock.send(message.encode())
+                        nickname_dic[sock.getpeername()[1]]=nickname #Puts to dic the portnumber/key and nickname/value
+                        message='Nickname has been created'
+                        sock.send(message.encode().strip())
+                            
+                elif '/WHO' in message:
+                    names=''
+                    for sockets,nickname in nickname_dic.items():
+                        names=names+nickname+'\n'
+                    sock.send(names.encode().strip())
+                elif '/MSG' in message:
+                    command = message.split(" ")[0] #extracts the /MSG command
+                    nickname = message.split(" ")[1] #extracts the nickname / second parameter
+                    text = message.split(" ")[2] #extracts the text / third parameter
+                    sockets = list(nickname_dic.keys())[list(nickname_dic.values()).index(nickname)] #gets the key in the dictionary using its value
+                    if nickname in nickname_dic.values():
+                        sock.sendto( text.encode(),('127.0.0.1',sockets) )
+                    else:
+                        print('User does not exist')    
+                else:
+                    for send_sock in socket_list:
+                        if send_sock==sock:
+                            pass
+                        else:
+                            send_sock.send(message.encode().strip())
 
 
      
